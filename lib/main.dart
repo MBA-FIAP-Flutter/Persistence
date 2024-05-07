@@ -43,7 +43,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _openDatabase() async {
     final database = openDatabase(
-        join(await getDatabasesPath(), 'doggie_database.db'),
+      join(await getDatabasesPath(), 'doggie_database.db'),
+      onCreate: (db, version) {
+        return db.execute(
+          'CREATE TABLE dogs(id INTEGER PRIMARY KEY, name TEXT, age INTEGER)',
+        );
+      },
+      version: 1,
     );
   }
 
