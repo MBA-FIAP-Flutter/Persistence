@@ -66,43 +66,57 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              TextField(
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Name',
-                  hintText: 'Enter a name',
-                ),
-                controller: _nameController,
+      body: Builder(
+        builder: (context) {
+          return Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  TextField(
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Name',
+                      hintText: 'Enter a name',
+                    ),
+                    controller: _nameController,
+                  ),
+                  const SizedBox(height: 16,),
+                  TextField(
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Age',
+                      hintText: 'Enter a age',
+                    ),
+                    keyboardType: TextInputType.number,
+                    controller: _ageController,
+                  ),
+                  const SizedBox(height: 24,),
+                  Row(
+                    children: [
+                      TextButton(
+                          onPressed: (){
+                            Dog dog = Dog(
+                                name: _nameController.text,
+                                age: int.parse(_ageController.text));
+                            insertDog(dog);
+                            _nameController.text = '';
+                            _ageController.text = '';
+                          },
+                          child: const Text('Save')
+                      ),
+                      TextButton(
+                          onPressed: (){
+                            dogs(context);
+                          },
+                          child: const Text('See All')
+                      )
+                    ],
+                  )
+                ],
               ),
-              const SizedBox(height: 16,),
-              TextField(
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Age',
-                  hintText: 'Enter a age',
-                ),
-                keyboardType: TextInputType.number,
-                controller: _ageController,
-              ),
-              const SizedBox(height: 24,),
-              TextButton(
-                onPressed: (){
-                  Dog dog = Dog(
-                      name: _nameController.text,
-                      age: int.parse(_ageController.text));
-                  insertDog(dog);
-                  _nameController.text = '';
-                  _ageController.text = '';
-                },
-                child: const Text('Save')
-              )
-            ],
-          ),
+          );
+        }
       ),
     );
   }
@@ -113,6 +127,30 @@ class _MyHomePageState extends State<MyHomePage> {
       'dogs',
       dog.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  // A method that retrieves all the dogs from the dogs table.
+  void dogs(BuildContext context) async {
+    if (database == null) {
+      return;
+    }
+
+    final List<Map<String, Object?>> dogMaps = await database!.query('dogs');
+
+    showBottomSheet(
+        context: context,
+        builder: (context) => Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: ListView.separated(
+            itemCount: dogMaps.length,
+            separatorBuilder: (context, index) => Divider(height: 1,),
+            itemBuilder: (context, index) => Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text("${dogMaps[index]['name']}"),
+            ),
+          ),
+        ),
     );
   }
 }
