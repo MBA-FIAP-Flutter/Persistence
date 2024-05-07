@@ -147,10 +147,35 @@ class _MyHomePageState extends State<MyHomePage> {
             separatorBuilder: (context, index) => Divider(height: 1,),
             itemBuilder: (context, index) => Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text("${dogMaps[index]['name']}"),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("${dogMaps[index]['id']}: ${dogMaps[index]['name']} - ${dogMaps[index]['age']}"),
+                  IconButton(
+                      onPressed: (){
+                        deleteDog(context, dogMaps[index]['id'] as int);
+                      },
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        color: Colors.red,
+                      ))
+                ],
+              ),
             ),
           ),
         ),
     );
+  }
+
+  void deleteDog(BuildContext context, int id) async {
+    await database?.delete(
+      'dogs',
+      // Use a `where` clause to delete a specific dog.
+      where: 'id = ?',
+      // Pass the Dog's id as a whereArg to prevent SQL injection.
+      whereArgs: [id],
+    );
+
+    Navigator.pop(context);
   }
 }
